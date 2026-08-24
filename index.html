@@ -6,6 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>微信聊天记录生成器 - 批量生成工具</title>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="e0b0692c-15bc-4a0a-a33a-d8438da49573"></script>
+    <script>
+      // 部署后 CDN 边缘节点没同步齐，老页面按旧 hash 请求 chunk 会 404/返回 index.html 的
+      // fallback（MIME 是 text/html，浏览器拒绝当模块执行）——vite 抛 vite:preloadError。
+      // 自动注销 SW + 清缓存 + 刷新即可自愈；时间戳限流（10 秒内只一次）防死循环。
+      (function () {
+        var KEY = 'wechat-chat-gen-chunk-reload-ts'
+        window.addEventListener('vite:preloadError', function (event) {
+          event.preventDefault()
+          var now = Date.now()
+          var last = Number(sessionStorage.getItem(KEY) || 0)
+          if (now - last < 10000) return
+          sessionStorage.setItem(KEY, String(now))
+          var tasks = []
+          if ('serviceWorker' in navigator) {
+            tasks.push(navigator.serviceWorker.getRegistrations().then(function (regs) {
+              return Promise.all(regs.map(function (r) { return r.unregister() }))
+            }).catch(function () {}))
+          }
+          if ('caches' in window) {
+            tasks.push(caches.keys().then(function (keys) {
+              return Promise.all(keys.map(function (k) { return caches.delete(k) }))
+            }).catch(function () {}))
+          }
+          Promise.all(tasks).finally(function () { window.location.reload() })
+        })
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>

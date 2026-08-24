@@ -30,6 +30,7 @@
     "typescript": "^6.0.3",
     "vite": "^8.2.1",
     "vite-plugin-pwa": "^1.2.0",
+    "vite-plugin-refresh-guard": "^0.2.0",
     "vue-tsc": "^3.3.9"
   },
   "engines": {

@@ -3,6 +3,7 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { refreshGuard } from 'vite-plugin-refresh-guard'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -19,6 +20,7 @@ export default defineConfig(({ mode }) => {
   plugins: [
     vue(),
     tailwindcss(),
+    refreshGuard({ changelog: false }),
     VitePWA({
       registerType: 'prompt', // 关键：检测到更新时提示用户，最安全
       includeAssets: ['favicon.ico', 'logo.svg', 'assets/*.jpg'],
