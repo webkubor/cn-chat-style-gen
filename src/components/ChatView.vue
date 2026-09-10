@@ -106,7 +106,14 @@ const handleSystemMessageDoubleClick = (id: string) => {
       </div>
 
       <!-- 领取红包消息 -->
-      <div v-if="msg.type === 'red-packet-opened'" class="flex justify-center my-2.5 px-6">
+      <!--
+        必须是 v-else-if：这三个分支（system / red-packet-opened / 普通消息）是同一条互斥链。
+        原先这里写 v-if，于是 v-else 只跟它配对，system 类型的消息会先命中上面那条 v-if
+        渲染成灰色系统提示，再落进这条链的 v-else 又渲染出一个带头像的普通气泡 ——
+        气泡用 {{ }} 插值，把 addInviteSystemMessage 拼进 content 的
+        <span class="system-name"> 原样打了出来。拉人模式每条消息都会重复一次。
+      -->
+      <div v-else-if="msg.type === 'red-packet-opened'" class="flex justify-center my-2.5 px-6">
         <div
           :class="[
             'flex items-center gap-2 px-3.5 py-1 rounded-[6px] backdrop-blur-md shadow-sm transition-colors',
