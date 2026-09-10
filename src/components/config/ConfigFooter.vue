@@ -45,6 +45,19 @@ onMounted(() => {
       <span class="w-1 h-1 rounded-full bg-white/10"></span>
       <p class="text-[10px] text-white/40 tracking-[0.2em] font-medium">好易美票务公司</p>
     </div>
+
+    <!-- 业务中台入口：本站的素材与出图能力后续接 MUSE AV，先把入口露出来 -->
+    <a
+      href="https://museav.top"
+      target="_blank"
+      rel="noopener"
+      class="group mb-6 inline-flex items-center gap-2 rounded-full border border-[#7A9D8C]/20 bg-[#7A9D8C]/5 px-4 py-1.5 transition-colors hover:border-[#7A9D8C]/40 hover:bg-[#7A9D8C]/10"
+    >
+      <span class="text-[10px] font-black uppercase tracking-[0.25em] text-[#7A9D8C]">MUSE AV</span>
+      <span class="h-2.5 w-px bg-[#7A9D8C]/25"></span>
+      <span class="text-[10px] tracking-wider text-white/40 transition-colors group-hover:text-white/60">业务中台 · 声影成诗</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[#7A9D8C]/50 transition-transform group-hover:translate-x-0.5"><path d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+    </a>
     
     <div class="flex flex-col items-center gap-2.5">
       <p class="text-[10px] text-white/15 uppercase tracking-[0.2em]">© 2026 Design by WebKubor</p>
