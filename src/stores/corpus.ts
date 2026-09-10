@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
-import { db, isCloudEnabled } from '../utils/cloudbase'
 import { localDB } from '../utils/localdb'
 import { PRESET_DIALOGUES, PRESET_NICKNAMES } from '../config/presets'
-import { type CorpusItem, type NicknameItem, DB_STORES } from '../types/database'
+import { type CorpusItem, type NicknameItem } from '../types/database'
 
 export type { CorpusItem, NicknameItem }
 
@@ -17,7 +16,6 @@ const getDialoguePresets = (): CorpusItem[] => {
 
 export const useCorpusStore = defineStore('corpus', {
   state: () => ({
-    mode: 'local' as 'local' | 'cloud',
     dialogues: [] as CorpusItem[],
     nicknames: [] as NicknameItem[],
     isReady: false
@@ -28,12 +26,6 @@ export const useCorpusStore = defineStore('corpus', {
       await localDB.init()
       await this.loadAll()
       this.isReady = true
-    },
-
-    async switchMode(mode: 'local' | 'cloud') {
-      if (mode === 'cloud' && !isCloudEnabled()) return
-      this.mode = mode
-      await this.loadAll()
     },
 
     async loadAll() {
@@ -51,30 +43,18 @@ export const useCorpusStore = defineStore('corpus', {
 
     async addDialogue(content: string) {
       if (!content.trim()) return
-      if (this.mode === 'local') {
-        await localDB.add({ type: 'dialogue', content, preset: false })
-      } else {
-        await this.addCloudDialogue(content)
-      }
+      await localDB.add({ type: 'dialogue', content, preset: false })
       await this.loadAll()
     },
 
     async deleteDialogue(item: CorpusItem) {
       if (item.preset) return
-      if (this.mode === 'local') {
-        if (item.id) await localDB.delete(item.id)
-      } else {
-        if (item._id) await this.deleteCloudDialogue(item._id)
-      }
+      if (item.id) await localDB.delete(item.id)
       await this.loadAll()
     },
 
     async clearDialogues() {
-      if (this.mode === 'local') {
-        await localDB.clear()
-      } else {
-        await this.clearCloudDialogues()
-      }
+      await localDB.clear()
       await this.loadAll()
     },
 
@@ -82,30 +62,18 @@ export const useCorpusStore = defineStore('corpus', {
 
     async addNickname(content: string) {
       if (!content.trim()) return
-      if (this.mode === 'local') {
-        await localDB.addNickname({ type: 'nickname', content, preset: false })
-      } else {
-        await this.addCloudNickname(content)
-      }
+      await localDB.addNickname({ type: 'nickname', content, preset: false })
       await this.loadAll()
     },
 
     async deleteNickname(item: NicknameItem) {
       if (item.preset) return
-      if (this.mode === 'local') {
-        if (item.id) await localDB.deleteNickname(item.id)
-      } else {
-        if (item._id) await this.deleteCloudNickname(item._id)
-      }
+      if (item.id) await localDB.deleteNickname(item.id)
       await this.loadAll()
     },
 
     async clearNicknames() {
-      if (this.mode === 'local') {
-        await localDB.clearNicknames()
-      } else {
-        await this.clearCloudNicknames()
-      }
+      await localDB.clearNicknames()
       await this.loadAll()
     },
 
@@ -138,119 +106,5 @@ export const useCorpusStore = defineStore('corpus', {
     async fetchLocalNicknames(): Promise<NicknameItem[]> {
       return await localDB.getAllNicknames()
     },
-
-    // --- 云端引擎 (CloudBase) ---
-
-    async fetchCloudDialogues(): Promise<CorpusItem[]> {
-      if (!isCloudEnabled()) return []
-      try {
-        const { initCloudBase } = await import('../utils/cloudbase')
-        await initCloudBase()
-        const { data } = await db.collection(DB_STORES.CORPUS)
-          .where({ type: 'dialogue' })
-          .limit(1000)
-          .get()
-        return data as CorpusItem[]
-      } catch (e) {
-        console.error('云端获取失败', e)
-        return []
-      }
-    },
-
-    async fetchCloudNicknames(): Promise<NicknameItem[]> {
-      if (!isCloudEnabled()) return []
-      try {
-        const { initCloudBase } = await import('../utils/cloudbase')
-        await initCloudBase()
-        const { data } = await db.collection(DB_STORES.NICKNAMES)
-          .where({ type: 'nickname' })
-          .limit(1000)
-          .get()
-        return data as NicknameItem[]
-      } catch (e) {
-        console.error('云端获取失败', e)
-        return []
-      }
-    },
-
-    async addCloudDialogue(content: string) {
-      if (!isCloudEnabled()) return
-      try {
-        const { initCloudBase } = await import('../utils/cloudbase')
-        await initCloudBase()
-        await db.collection(DB_STORES.CORPUS).add({
-          type: 'dialogue',
-          content,
-          created_at: new Date()
-        })
-      } catch (e) {
-        console.error('云端添加失败', e)
-      }
-    },
-
-    async addCloudNickname(content: string) {
-      if (!isCloudEnabled()) return
-      try {
-        const { initCloudBase } = await import('../utils/cloudbase')
-        await initCloudBase()
-        await db.collection(DB_STORES.NICKNAMES).add({
-          type: 'nickname',
-          content,
-          created_at: new Date()
-        })
-      } catch (e) {
-        console.error('云端添加失败', e)
-      }
-    },
-
-    async deleteCloudDialogue(_id: string) {
-      if (!isCloudEnabled()) return
-      try {
-        const { initCloudBase } = await import('../utils/cloudbase')
-        await initCloudBase()
-        await db.collection(DB_STORES.CORPUS).doc(_id).remove()
-      } catch (e) {
-        console.error('云端删除失败', e)
-      }
-    },
-
-    async deleteCloudNickname(_id: string) {
-      if (!isCloudEnabled()) return
-      try {
-        const { initCloudBase } = await import('../utils/cloudbase')
-        await initCloudBase()
-        await db.collection(DB_STORES.NICKNAMES).doc(_id).remove()
-      } catch (e) {
-        console.error('云端删除失败', e)
-      }
-    },
-
-    async clearCloudDialogues() {
-      if (!isCloudEnabled()) return
-      try {
-        const { initCloudBase } = await import('../utils/cloudbase')
-        await initCloudBase()
-        const items = await this.fetchCloudDialogues()
-        for (const item of items) {
-          if (item._id) await db.collection(DB_STORES.CORPUS).doc(item._id).remove()
-        }
-      } catch (e) {
-        console.error('云端清空失败', e)
-      }
-    },
-
-    async clearCloudNicknames() {
-      if (!isCloudEnabled()) return
-      try {
-        const { initCloudBase } = await import('../utils/cloudbase')
-        await initCloudBase()
-        const items = await this.fetchCloudNicknames()
-        for (const item of items) {
-          if (item._id) await db.collection(DB_STORES.NICKNAMES).doc(item._id).remove()
-        }
-      } catch (e) {
-        console.error('云端清空失败', e)
-      }
-    }
   }
 })

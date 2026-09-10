@@ -2,7 +2,6 @@
 import { ref, onMounted, computed } from 'vue'
 import { useCorpusStore, type CorpusItem, type NicknameItem } from '../stores/corpus'
 import { useAvatarStore } from '../stores/avatar'
-import { isCloudEnabled } from '../utils/cloudbase'
 import NicknameGrid from '../components/ui/NicknameGrid.vue'
 import { useSound } from '../composables/useSound'
 import { useUpload } from '../composables/useUpload'
@@ -25,8 +24,8 @@ const customAvatars = computed(() => avatarStore.customAvatars)
 const customAvatarCount = computed(() => avatarStore.totalCustomCount)
 const canUploadMore = computed(() => avatarStore.canAddMore)
 const canDeleteAvatar = computed(() => customAvatarCount.value >= 10)
-const currentModeLabel = computed(() => corpusStore.mode === 'local' ? '本地私享' : '云端同步')
-const cloudEnabled = isCloudEnabled()
+// 语料只存本机 IndexedDB，没有第二个存储位置，所以这个标签是常量而非状态
+const currentModeLabel = '本地私享'
 
 const MAX_AVATAR_SIZE_MB = 5
 
@@ -34,14 +33,6 @@ onMounted(() => {
   corpusStore.init()
   avatarStore.init()
 })
-
-const handleModeSwitch = (mode: 'local' | 'cloud') => {
-  if (mode === 'cloud' && !cloudEnabled) {
-    window.$message.info('云端同步暂时关闭，当前为本地私享模式')
-    return
-  }
-  corpusStore.switchMode(mode)
-}
 
 const handleAdd = async () => {
   if (!newContent.value) return
@@ -59,7 +50,7 @@ const handleDelete = async (item: CorpusItem | NicknameItem) => {
   const confirmed = window.$confirm
     ? await window.$confirm({
         title: '确认删除？',
-        message: `确定要从【${currentModeLabel.value}】删除这条${typeLabel}吗？`,
+        message: `确定要从【${currentModeLabel}】删除这条${typeLabel}吗？`,
         confirmText: '删除',
         cancelText: '取消',
         confirmType: 'danger'
@@ -111,9 +102,7 @@ const handleClearAll = async () => {
       : '头像'
   const msg = currentTab.value === 'avatars'
     ? '确定要清空所有自定义头像吗？'
-    : corpusStore.mode === 'local' 
-      ? `确定要清空【本地】所有自定义${typeLabel}吗？` 
-      : `确定要清空【云端】所有${typeLabel}吗？这会影响所有用户！`
+    : `确定要清空本机所有自定义${typeLabel}吗？`
   
   const confirmed = window.$confirm
     ? await window.$confirm({
@@ -151,7 +140,7 @@ const handleExport = async () => {
       : { nicknames: data.nicknames }
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
     const link = document.createElement('a')
-    link.download = `wechat-${currentTab.value}-${corpusStore.mode}-${Date.now()}.json`
+    link.download = `wechat-${currentTab.value}-${Date.now()}.json`
     link.href = URL.createObjectURL(blob)
     link.click()
     URL.revokeObjectURL(link.href)
@@ -180,7 +169,7 @@ const handleImport = async (e: Event) => {
     } else {
       await corpusStore.replaceAllNicknames(list)
     }
-    window.$message.success(`成功导入到【${currentModeLabel.value}】`)
+    window.$message.success(`成功导入到【${currentModeLabel}】`)
   } catch (err) {
     window.$message.error('导入失败：请确认文件格式为 JSON 数组')
   } finally {
@@ -258,22 +247,11 @@ const onAddClick = async () => {
           <h1 class="text-3xl font-light text-[#E8F1F2] tracking-wide">
             藏宝<span class="font-bold text-[#7A9D8C]">库</span>
           </h1>
-          <div class="bg-black/20 p-1 rounded-lg flex text-[10px] font-medium backdrop-blur-sm border border-white/5">
-            <button @click="handleModeSwitch('local')" class="px-3 py-1 rounded-md transition-all duration-300" :class="corpusStore.mode === 'local' ? 'bg-[#7A9D8C] text-white shadow-lg' : 'text-white/40 hover:text-white/60'">本地私享</button>
-            <button
-              @click="handleModeSwitch('cloud')"
-              :disabled="!cloudEnabled"
-              class="px-3 py-1 rounded-md transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50"
-              :class="corpusStore.mode === 'cloud' ? 'bg-[#A27B5C] text-white shadow-lg' : 'text-white/40 hover:text-white/60'"
-            >
-              云端同步
-            </button>
-          </div>
-          <span v-if="!cloudEnabled" class="text-[10px] text-white/30 tracking-widest">云端同步暂时关闭</span>
+          <span class="bg-black/20 px-3 py-1 rounded-lg text-[10px] font-medium backdrop-blur-sm border border-white/5 text-[#7A9D8C]">本地私享</span>
         </div>
         <p class="text-white/40 text-sm tracking-widest flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full" :class="corpusStore.mode === 'local' ? 'bg-[#7A9D8C]' : 'bg-[#A27B5C]'"></span>
-          {{ currentModeLabel }}
+          <span class="w-2 h-2 rounded-full bg-[#7A9D8C]"></span>
+          数据只存在这台设备上，不上传
         </p>
       </div>
       <div class="flex items-center gap-3">
@@ -325,12 +303,11 @@ const onAddClick = async () => {
             type="text" 
             :placeholder="placeholderText"
             class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none transition-all"
-            :class="corpusStore.mode === 'local' ? 'focus:border-[#7A9D8C]/50' : 'focus:border-[#A27B5C]/50'"
+            :class="'focus:border-[#7A9D8C]/50'"
           />
           <button 
             @click="onAddClick"
-            class="px-6 py-2 text-white rounded-xl text-sm font-bold shadow-lg transition-all active:scale-95"
-            :class="corpusStore.mode === 'local' ? 'bg-[#7A9D8C] hover:bg-[#6B8E78]' : 'bg-[#A27B5C] hover:bg-[#8B6B4C]'"
+            class="px-6 py-2 text-white rounded-xl text-sm font-bold shadow-lg transition-all active:scale-95 bg-[#7A9D8C] hover:bg-[#6B8E78]"
           >
             添加
           </button>
@@ -369,13 +346,13 @@ const onAddClick = async () => {
 
           <div 
             v-for="item in dialogueItems" 
-            :key="item._id || item.id"
+            :key="item.id"
             class="group flex items-center justify-between p-4 bg-white/5 rounded-xl border border-transparent hover:border-white/10 transition-all"
           >
             <div class="flex items-center gap-3 min-w-0">
               <span 
                 class="px-2 py-0.5 text-[10px] rounded-full border uppercase tracking-widest"
-                :class="item.preset ? 'border-white/20 text-white/40' : (corpusStore.mode === 'local' ? 'border-[#7A9D8C]/50 text-[#7A9D8C]' : 'border-[#A27B5C]/50 text-[#A27B5C]')"
+                :class="item.preset ? 'border-white/20 text-white/40' : 'border-[#7A9D8C]/50 text-[#7A9D8C]'"
               >
                 {{ item.preset ? '系统' : '用户' }}
               </span>
@@ -399,7 +376,6 @@ const onAddClick = async () => {
         <div v-else-if="currentTab === 'nicknames'" class="pb-4">
           <NicknameGrid 
             :items="nicknameItems" 
-            :mode="corpusStore.mode"
             @delete="handleDelete"
           />
           <div v-if="nicknameItems.length === 0" class="text-center py-20 text-white/20 text-sm">

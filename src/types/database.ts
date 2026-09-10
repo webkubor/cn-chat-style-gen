@@ -1,6 +1,6 @@
 /**
  * 数据库统一 Schema 定义
- * 涵盖：IndexedDB (本地) 与 CloudBase (云端)
+ * 存储只有一处：浏览器本地 IndexedDB（见 utils/localdb.ts）
  */
 
 // --- 基础枚举类型 ---
@@ -11,8 +11,7 @@ export type ExportRatio = 'full' | '3:4'
 
 // --- 语料库实体 ---
 export interface CorpusItem {
-  _id?: string      // 云端主键
-  id?: number       // 本地主键
+  id?: number       // 主键（IndexedDB 自增）
   type: 'dialogue'  // 类型标识
   content: string   // 内容
   preset?: boolean  // 是否预设 (不存入DB)
@@ -21,8 +20,7 @@ export interface CorpusItem {
 
 // --- 昵称库实体 ---
 export interface NicknameItem {
-  _id?: string      // 云端主键
-  id?: number       // 本地主键
+  id?: number       // 主键（IndexedDB 自增）
   type: 'nickname'  // 类型标识
   content: string   // 昵称内容
   preset?: boolean  // 是否预设 (不存入DB)

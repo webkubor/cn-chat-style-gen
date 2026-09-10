@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -11,8 +11,7 @@ import path from 'node:path'
 const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'))
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
+export default defineConfig(() => {
   return {
   define: {
     '__APP_VERSION__': JSON.stringify(pkg.version)
@@ -71,14 +70,5 @@ export default defineConfig(({ mode }) => {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  server: {
-    proxy: {
-      '/tcb-api': {
-        target: `https://${env.VITE_CLOUDBASE_ENV_ID}.ap-shanghai.tcb-api.tencentcloudapi.com`,
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/tcb-api/, '')
-      }
-    }
-  }
 }
 })

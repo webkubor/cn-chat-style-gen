@@ -3,7 +3,6 @@ import type { NicknameItem } from '../../stores/corpus'
 
 defineProps<{
   items: NicknameItem[]
-  mode: 'local' | 'cloud'
 }>()
 
 const emit = defineEmits<{
@@ -15,7 +14,7 @@ const emit = defineEmits<{
   <div class="flex flex-wrap gap-2">
     <div
       v-for="item in items"
-      :key="item._id || item.id"
+      :key="item.id"
       class="group relative inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-transparent hover:border-white/10 transition-all"
     >
       <span 
