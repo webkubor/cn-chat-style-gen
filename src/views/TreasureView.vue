@@ -5,6 +5,7 @@ import { useAvatarStore } from '../stores/avatar'
 import NicknameGrid from '../components/ui/NicknameGrid.vue'
 import { useSound } from '../composables/useSound'
 import { useUpload } from '../composables/useUpload'
+import MuseavPicker from '../components/MuseavPicker.vue'
 
 type TabType = 'dialogues' | 'nicknames' | 'avatars'
 
@@ -21,6 +22,21 @@ const currentTab = ref<TabType>('dialogues')
 const dialogueItems = computed(() => corpusStore.dialogues)
 const nicknameItems = computed(() => corpusStore.nicknames)
 const customAvatars = computed(() => avatarStore.customAvatars)
+
+// 从 MUSE AV 拿素材：用户自己的 AI 作品，或就地出一张新的。
+// 头像库存的本来就是 URL（见 stores/avatar.ts 的 addCustomAvatar），
+// 所以中台作品的 cdn_url 可以直接入库，不用下载再上传一遍。
+const showMuseav = ref(false)
+
+async function onMuseavPick(url: string) {
+  if (!canUploadMore.value) {
+    window.$message?.error('头像库已满（最多 100 个）')
+    return
+  }
+  await avatarStore.addCustomAvatar(url)
+  showMuseav.value = false
+  window.$message?.success('已加入头像库')
+}
 const customAvatarCount = computed(() => avatarStore.totalCustomCount)
 const canUploadMore = computed(() => avatarStore.canAddMore)
 const canDeleteAvatar = computed(() => customAvatarCount.value >= 10)
@@ -319,6 +335,13 @@ const onAddClick = async () => {
           </div>
           <div class="flex items-center gap-3">
             <span class="text-xs text-white/40">{{ customAvatarCount }}/100</span>
+            <button
+              @click="showMuseav = true"
+              :disabled="!canUploadMore"
+              class="px-4 py-2 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 bg-white/10 hover:bg-white/20 text-white"
+            >
+              MUSE AV 素材
+            </button>
             <button 
               @click="triggerAvatarUpload"
               :disabled="isUploading || !canUploadMore"
@@ -413,5 +436,13 @@ const onAddClick = async () => {
         </div>
       </div>
     </div>
+
+    <MuseavPicker
+      v-if="showMuseav"
+      purpose="选作头像"
+      ratio="1:1"
+      @pick="onMuseavPick"
+      @close="showMuseav = false"
+    />
   </div>
 </template>

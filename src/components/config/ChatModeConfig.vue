@@ -4,6 +4,7 @@ import { useChatStore } from '../../stores/chat'
 import { useCorpusStore } from '../../stores/corpus'
 import { useSound } from '../../composables/useSound'
 import AvatarLibrary from '../AvatarLibrary.vue'
+import MuseavPicker from '../MuseavPicker.vue'
 
 const chatStore = useChatStore()
 const corpusStore = useCorpusStore()
@@ -70,6 +71,16 @@ const onClearAllClick = async () => {
 
 const showAvatarLibrary = ref(false)
 const isBgUploading = ref(false)
+// 从 MUSE AV 选一张当聊天背景。chatStore.setBg 收的就是一个图片地址，
+// 所以中台作品的 cdn_url 直接给它 —— 本地上传那条路是 FileReader 转 dataURL，
+// 两者都只是「一个能渲染的图源」。
+const showMuseavBg = ref(false)
+
+function onMuseavBgPick(url: string) {
+  chatStore.setBg(url)
+  showMuseavBg.value = false
+  window.$message?.success('已设为聊天背景')
+}
 
 const handleBgUpload = (e: Event) => {
   const input = e.target as HTMLInputElement
@@ -207,7 +218,15 @@ const onRedPacketOpenedClick = () => {
     </div>
 
     <div>
-      <label class="block text-[10px] font-medium text-white/40 uppercase tracking-widest mb-2">聊天背景</label>
+      <div class="flex items-center justify-between mb-2">
+        <label class="block text-[10px] font-medium text-white/40 uppercase tracking-widest">聊天背景</label>
+        <button
+          @click="showMuseavBg = true"
+          class="text-[10px] text-[#7A9D8C] hover:text-white transition-colors tracking-wider"
+        >
+          从 MUSE AV 选 →
+        </button>
+      </div>
       <label class="flex items-center justify-center w-full h-[46px] bg-white/5 hover:bg-white/10 border border-white/10 border-dashed rounded-xl cursor-pointer transition-all duration-300 group hover:border-[#7A9D8C]/50">
         <span class="text-xs text-white/40 group-hover:text-[#7A9D8C] transition-colors">
           {{ isBgUploading ? '上传中，请勿离开页面' : '上传图片' }}
@@ -322,6 +341,14 @@ const onRedPacketOpenedClick = () => {
       v-if="showAvatarLibrary"
       v-model="chatStore.currentUser.avatar"
       @close="showAvatarLibrary = false"
+    />
+
+    <MuseavPicker
+      v-if="showMuseavBg"
+      purpose="选作聊天背景"
+      ratio="3:4"
+      @pick="onMuseavBgPick"
+      @close="showMuseavBg = false"
     />
   </div>
 </template>
