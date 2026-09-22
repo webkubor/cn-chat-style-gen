@@ -66,7 +66,8 @@ export function useExport() {
 
       const scale = fullCanvas.width / element.offsetWidth
       const cropWidth = element.offsetWidth
-      const cropTop = header ? Math.max(0, header.offsetTop + 6) : 0
+      // 保留状态栏时从屏幕最顶端裁（真截图就是这样的，含时间/信号/电量）
+      const cropTop = chatStore.keepStatusBar ? 0 : (header ? Math.max(0, header.offsetTop + 6) : 0)
       const fullHeight = element.offsetHeight
       const availableHeight = Math.max(0, fullHeight - cropTop)
       const targetHeight = Math.round(cropWidth * 4 / 3)

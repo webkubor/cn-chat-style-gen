@@ -167,7 +167,7 @@ onBeforeUnmount(() => {
             
             <!-- 居中标题 -->
             <div class="font-bold text-[17px] truncate max-w-[200px] text-center flex-1 tracking-[-0.01em]">
-              {{ chatStore.groupTitle }}<span class="ml-0.5 font-normal text-[16px] opacity-60">({{ chatStore.memberCount }})</span>
+              {{ chatStore.groupTitle }}<span v-if="chatStore.isGroupChat" class="ml-0.5 font-normal text-[16px] opacity-60">({{ chatStore.memberCount }})</span>
             </div>
             
             <!-- 微信标准 "..." 更多按钮 -->

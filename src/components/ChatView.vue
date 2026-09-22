@@ -93,6 +93,11 @@ const handleSystemMessageDoubleClick = (id: string) => {
   <div class="p-4 space-y-4 pb-10 pt-2">
     <div v-for="msg in chatStore.messages" :key="msg.id" class="flex flex-col group/msg relative">
 
+      <!-- 时间戳分隔（真实微信每隔一段会插一条时间，填了 timestamp 才显示） -->
+      <div v-if="msg.timestamp" class="flex justify-center my-1">
+        <span class="text-[11px] leading-none text-[#a8a8a8]">{{ msg.timestamp }}</span>
+      </div>
+
       <!-- 系统消息 -->
       <div v-if="msg.type === 'system'" class="flex justify-center my-1 relative">
         <div
@@ -144,9 +149,9 @@ const handleSystemMessageDoubleClick = (id: string) => {
 
         <!-- 内容容器 -->
         <div class="flex flex-col" :class="msg.isMe ? 'items-end' : 'items-start'">
-          <!-- 昵称 -->
+          <!-- 昵称：单聊模式（不显示群人数）下微信不显示昵称 -->
           <div
-            v-if="!msg.isMe"
+            v-if="!msg.isMe && chatStore.isGroupChat"
             class="mb-0.5 ml-0.5 scale-90 origin-bottom-left outline-none min-w-[20px]"
             contenteditable
             @blur="(e) => chatStore.updateMessage(msg.id, 'name', (e.target as HTMLElement).innerText)"
