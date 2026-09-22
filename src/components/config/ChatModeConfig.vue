@@ -196,6 +196,18 @@ const onRedPacketOpenedClick = () => {
       </div>
     </div>
 
+    <div class="group">
+      <label class="flex items-center gap-2 text-xs text-white/60 hover:text-white/80 transition-colors cursor-pointer select-none">
+        <span class="relative inline-flex items-center">
+          <input v-model="chatStore.isGroupChat" type="checkbox" class="sr-only peer" />
+          <span class="w-8 h-4 bg-white/10 border border-white/10 rounded-full transition-all peer-checked:bg-[#7A9D8C]/60 peer-checked:border-[#7A9D8C]/60"></span>
+          <span class="absolute left-0.5 top-0.5 w-3 h-3 rounded-full bg-white/60 transition-all peer-checked:translate-x-4"></span>
+        </span>
+        群聊形态
+      </label>
+      <p class="text-[10px] text-white/30 mt-1 leading-relaxed">开着：标题带人数、消息显示昵称；关掉 = 单聊形态（标题只有名字，不显示昵称）</p>
+    </div>
+
     <div>
       <label class="block text-[10px] font-medium text-white/40 uppercase tracking-widest mb-2">我的头像</label>
       <div class="flex items-center gap-3">

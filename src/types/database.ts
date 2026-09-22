@@ -49,6 +49,9 @@ export interface ChatSession {
   memberCount: number
   backgroundImage: string
   exportRatio?: ExportRatio
+  isGroupChat?: boolean      // 群聊形态（标题带人数、消息带昵称）；false = 单聊形态
+  keepStatusBar?: boolean    // 导出保留顶部状态栏
+  statusBarTime?: string     // 状态栏时间（如 "21:02"）
   messages: ChatMessage[]
   currentUser: {
     name: string

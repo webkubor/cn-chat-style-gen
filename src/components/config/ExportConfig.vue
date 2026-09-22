@@ -47,6 +47,18 @@ defineEmits<{
         <BaseSelect v-model="chatStore.exportRatio" :options="exportRatioOptions" />
       </div>
 
+      <div class="group">
+        <label class="flex items-center gap-2 text-xs text-white/60 hover:text-white/80 transition-colors cursor-pointer select-none">
+          <span class="relative inline-flex items-center">
+            <input v-model="chatStore.keepStatusBar" type="checkbox" class="sr-only peer" />
+            <span class="w-8 h-4 bg-white/10 border border-white/10 rounded-full transition-all peer-checked:bg-[#7A9D8C]/60 peer-checked:border-[#7A9D8C]/60"></span>
+            <span class="absolute left-0.5 top-0.5 w-3 h-3 rounded-full bg-white/60 transition-all peer-checked:translate-x-4"></span>
+          </span>
+          保留顶部状态栏
+        </label>
+        <p class="text-[10px] text-white/30 mt-1 leading-relaxed">开着更像真截图（带时间、信号、电量）；关掉则从聊天标题栏开始裁</p>
+      </div>
+
       <div class="flex flex-col gap-3">
 
         <div class="rounded-xl border border-white/10 bg-black/10 p-3">

@@ -27,6 +27,8 @@ export const useChatStore = defineStore('chat', {
     statusBarTime: '23:30',
     previewTheme: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') as PreviewTheme,
     currentUser: { name: '我', avatar: '' },
+    isGroupChat: true,     // 群聊形态：标题显示 (人数)、消息显示昵称；关掉 = 单聊形态
+    keepStatusBar: true,   // 导出时保留顶部状态栏（时间/信号/电量），真截图有
     messages: [] as ChatMessage[]
   }),
   actions: {
@@ -56,6 +58,9 @@ export const useChatStore = defineStore('chat', {
           this.messages = saved.messages ?? []
           this.currentUser = saved.currentUser ?? this.currentUser
           this.exportRatio = saved.exportRatio ?? this.exportRatio
+          this.isGroupChat = saved.isGroupChat ?? this.isGroupChat
+          this.keepStatusBar = saved.keepStatusBar ?? this.keepStatusBar
+          this.statusBarTime = saved.statusBarTime ?? this.statusBarTime
           
           // 处理背景图：如果是资源 ID，从 localDB 加载 Blob
           if (saved.backgroundImage?.startsWith('res:')) {
@@ -90,6 +95,9 @@ export const useChatStore = defineStore('chat', {
           memberCount: this.memberCount,
           backgroundImage: this.backgroundImage,
           exportRatio: this.exportRatio,
+          isGroupChat: this.isGroupChat,
+          keepStatusBar: this.keepStatusBar,
+          statusBarTime: this.statusBarTime,
           messages: JSON.parse(JSON.stringify(this.messages)),
           currentUser: JSON.parse(JSON.stringify(this.currentUser))
         }
