@@ -19,8 +19,11 @@ function isValidRandomAvatarSource(obj: any): obj is RandomAvatarSource {
 }
 
 // picx-images-hosting /person 共 16 张（01.jpg – 16.jpg）
+// URL 走 jsdelivr CDN —— 与 webkubor 生态其他项目（typora-Bloom-theme /
+// dsh-bloom-theme 等）的资源引用方式一致；raw.githubusercontent.com 也可用但
+// 走 jsdelivr 有全球 CDN 加速和无 CORS / 限流问题。
 const PICS_PERSON_COUNT = 16
-const PICS_BASE_URL = 'https://raw.githubusercontent.com/webkubor/picx-images-hosting/master/person'
+const PICS_BASE_URL = 'https://cdn.jsdelivr.net/gh/webkubor/picx-images-hosting@master/person'
 
 const PERSON_AVATARS: string[] = Array.from({ length: PICS_PERSON_COUNT }, (_, i) => {
   const n = String(i + 1).padStart(2, '0')
