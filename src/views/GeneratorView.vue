@@ -4,9 +4,11 @@ import { useChatStore } from '../stores/chat'
 import { useChatListStore } from '../stores/chatList'
 import DeviceFrame from '../components/DeviceFrame.vue'
 import MomentsFrame from '../components/MomentsFrame.vue'
+import XhsFrame from '../components/XhsFrame.vue'
 import ChatView from '../components/ChatView.vue'
 import ChatListView from '../components/ChatListView.vue'
 import MomentsView from '../components/MomentsView.vue'
+import XhsView from '../components/XhsView.vue'
 import ConfigPanel from '../components/ConfigPanel.vue'
 import ConfigFooter from '../components/config/ConfigFooter.vue'
 
@@ -15,11 +17,12 @@ const chatListStore = useChatListStore()
 const isEditorOpen = ref(false) // 移动端控制编辑器展开/收起
 
 // 当前模式由 ConfigPanel 控制，这里需要获取它
-const currentMode = ref<'chat' | 'join' | 'list' | 'moments'>('chat')
+const currentMode = ref<'chat' | 'join' | 'list' | 'moments' | 'xhs'>('chat')
 
 // 是否显示列表视图
 const isListMode = computed(() => currentMode.value === 'list')
 const isMomentsMode = computed(() => currentMode.value === 'moments')
+const isXhsMode = computed(() => currentMode.value === 'xhs')
 
 const toggleEditor = () => {
   isEditorOpen.value = !isEditorOpen.value
@@ -31,7 +34,7 @@ onMounted(() => {
 })
 
 // 监听模式变化（通过事件从 ConfigPanel 传递）
-const handleModeChange = (mode: 'chat' | 'join' | 'list' | 'moments') => {
+const handleModeChange = (mode: 'chat' | 'join' | 'list' | 'moments' | 'xhs') => {
   currentMode.value = mode
 }
 </script>
@@ -46,6 +49,9 @@ const handleModeChange = (mode: 'chat' | 'join' | 'list' | 'moments') => {
           <MomentsFrame v-if="isMomentsMode">
             <MomentsView />
           </MomentsFrame>
+          <XhsFrame v-else-if="isXhsMode">
+            <XhsView />
+          </XhsFrame>
           <DeviceFrame v-else>
             <ChatListView v-if="isListMode" />
             <ChatView v-else />

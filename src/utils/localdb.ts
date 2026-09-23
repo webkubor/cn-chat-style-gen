@@ -1,7 +1,7 @@
-import { DB_STORES, type ChatSession, type PreviewQueueItem, type AvatarItem, type MomentsSession } from '../types/database'
+import { DB_STORES, type ChatSession, type PreviewQueueItem, type AvatarItem, type MomentsSession, type XhsSession } from '../types/database'
 
 const DB_NAME = 'wechat_gen_db'
-const DB_VERSION = 8 // 升级版本以增加朋友圈模式
+const DB_VERSION = 9 // 升级版本以增加小红书模式
 const STORE_CORPUS = DB_STORES.CORPUS
 const STORE_NICKNAMES = DB_STORES.NICKNAMES
 const STORE_CHAT = DB_STORES.CHAT_HISTORY
@@ -9,6 +9,7 @@ const STORE_PREVIEW_QUEUE = DB_STORES.PREVIEW_QUEUE
 const STORE_AVATARS = DB_STORES.AVATARS
 const STORE_CHAT_LIST = DB_STORES.CHAT_LIST
 const STORE_MOMENTS = DB_STORES.MOMENTS
+const STORE_XHS = DB_STORES.XHS
 const STORE_RESOURCES = 'resources' // 新增图片资源表
 
 class LocalDB {
@@ -58,6 +59,11 @@ class LocalDB {
         // 新增朋友圈存储
         if (!db.objectStoreNames.contains(STORE_MOMENTS)) {
           db.createObjectStore(STORE_MOMENTS, { keyPath: 'key' })
+        }
+
+        // 新增小红书存储
+        if (!db.objectStoreNames.contains(STORE_XHS)) {
+          db.createObjectStore(STORE_XHS, { keyPath: 'key' })
         }
       }
       
@@ -334,6 +340,28 @@ class LocalDB {
       const req = tx.objectStore(STORE_MOMENTS).get('current')
       req.onsuccess = () => resolve((req.result as MomentsSession) || null)
       req.onerror = () => reject(req.error)
+    })
+  }
+
+  // --- 小红书 API ---
+
+  async saveXhsSession(data: XhsSession): Promise<void> {
+    const db = await this.getDB()
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_XHS, 'readwrite')
+      tx.objectStore(STORE_XHS).put({ ...data, key: 'current' })
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
+    })
+  }
+
+  async loadXhsSession(): Promise<XhsSession | null> {
+    const db = await this.getDB()
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_XHS, 'readonly')
+      const req = tx.objectStore(STORE_XHS).get('current')
+      req.onsuccess = () => resolve((req.result as XhsSession) || null)
+      req.onerror = () => reject(tx.error)
     })
   }
 }

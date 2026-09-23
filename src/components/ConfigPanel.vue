@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { useChatStore } from '../stores/chat'
 import { useChatListStore } from '../stores/chatList'
 import { useMomentsStore } from '../stores/moments'
+import { useXhsStore } from '../stores/xhs'
 import { useExport } from '../composables/useExport'
 
 // 子组件导入
@@ -12,16 +13,18 @@ import ChatModeConfig from './config/ChatModeConfig.vue'
 import JoinModeConfig from './config/JoinModeConfig.vue'
 import ChatListModeConfig from './config/ChatListModeConfig.vue'
 import MomentsModeConfig from './config/MomentsModeConfig.vue'
+import XhsModeConfig from './config/XhsModeConfig.vue'
 
 const chatStore = useChatStore()
 const chatListStore = useChatListStore()
 const momentsStore = useMomentsStore()
+const xhsStore = useXhsStore()
 
 const emit = defineEmits<{
-  modeChange: [mode: 'chat' | 'join' | 'list' | 'moments']
+  modeChange: [mode: 'chat' | 'join' | 'list' | 'moments' | 'xhs']
 }>()
 
-const currentMode = ref<'chat' | 'join' | 'list' | 'moments'>('chat')
+const currentMode = ref<'chat' | 'join' | 'list' | 'moments' | 'xhs'>('chat')
 
 // 逻辑逻辑抽离 (现在不需要 showToast 了，由全局 window.$message 处理)
 const { isDownloading, isQueueing, exportIndex, queue, handleQuickDownload, addToQueue, removeFromQueue, clearQueue, handleBatchDownload } = useExport()
@@ -33,6 +36,8 @@ watch(currentMode, (newMode) => {
     chatListStore.init()
   } else if (newMode === 'moments') {
     momentsStore.init()
+  } else if (newMode === 'xhs') {
+    xhsStore.init()
   } else {
     chatStore.clearMessages()
     if (newMode === 'join') {
@@ -46,19 +51,22 @@ watch(currentMode, (newMode) => {
 
 <template>
   <div class="space-y-8 relative">
-    <!-- 对话模式 -->
+    <!-- 模式切换 -->
     <div class="group">
       <div class="bg-black/20 p-1.5 rounded-2xl flex relative overflow-hidden backdrop-blur-sm">
-        <button @click="currentMode = 'chat'" class="flex-1 py-2.5 rounded-xl text-xs font-medium transition-all duration-500 relative z-10" :class="currentMode === 'chat' ? 'text-white shadow-lg' : 'text-white/40 hover:text-white/60'">对话模式</button>
-        <button @click="currentMode = 'join'" class="flex-1 py-2.5 rounded-xl text-xs font-medium transition-all duration-500 relative z-10" :class="currentMode === 'join' ? 'text-white shadow-lg' : 'text-white/40 hover:text-white/60'">拉人模式</button>
-        <button @click="currentMode = 'list'" class="flex-1 py-2.5 rounded-xl text-xs font-medium transition-all duration-500 relative z-10" :class="currentMode === 'list' ? 'text-white shadow-lg' : 'text-white/40 hover:text-white/60'">列表模式</button>
-        <button @click="currentMode = 'moments'" class="flex-1 py-2.5 rounded-xl text-xs font-medium transition-all duration-500 relative z-10" :class="currentMode === 'moments' ? 'text-white shadow-lg' : 'text-white/40 hover:text-white/60'">朋友圈</button>
-        <div class="absolute top-1.5 bottom-1.5 w-[calc(25%-6px)] bg-[#7A9D8C] rounded-xl transition-all duration-500 ease-spring"
+        <button @click="currentMode = 'chat'" class="flex-1 py-2.5 rounded-xl text-[11px] font-medium transition-all duration-500 relative z-10" :class="currentMode === 'chat' ? 'text-white shadow-lg' : 'text-white/40 hover:text-white/60'">对话</button>
+        <button @click="currentMode = 'join'" class="flex-1 py-2.5 rounded-xl text-[11px] font-medium transition-all duration-500 relative z-10" :class="currentMode === 'join' ? 'text-white shadow-lg' : 'text-white/40 hover:text-white/60'">拉人</button>
+        <button @click="currentMode = 'list'" class="flex-1 py-2.5 rounded-xl text-[11px] font-medium transition-all duration-500 relative z-10" :class="currentMode === 'list' ? 'text-white shadow-lg' : 'text-white/40 hover:text-white/60'">列表</button>
+        <button @click="currentMode = 'moments'" class="flex-1 py-2.5 rounded-xl text-[11px] font-medium transition-all duration-500 relative z-10" :class="currentMode === 'moments' ? 'text-white shadow-lg' : 'text-white/40 hover:text-white/60'">朋友圈</button>
+        <button @click="currentMode = 'xhs'" class="flex-1 py-2.5 rounded-xl text-[11px] font-medium transition-all duration-500 relative z-10" :class="currentMode === 'xhs' ? 'text-white shadow-lg' : 'text-white/40 hover:text-white/60'">小红书</button>
+        <div class="absolute top-1.5 bottom-1.5 w-[calc(20%-4.8px)] rounded-xl transition-all duration-500 ease-spring"
              :class="[
+               currentMode === 'xhs' ? 'bg-[#FF2442]' : 'bg-[#7A9D8C]',
                currentMode === 'chat' ? 'left-1.5' :
-               currentMode === 'join' ? 'left-[calc(25%+2px)]' :
-               currentMode === 'list' ? 'left-[calc(50%+2px)]' :
-               'left-[calc(75%+1px)]'
+               currentMode === 'join' ? 'left-[calc(20%+1.5px)]' :
+               currentMode === 'list' ? 'left-[calc(40%+1.2px)]' :
+               currentMode === 'moments' ? 'left-[calc(60%+0.9px)]' :
+               'left-[calc(80%+0.6px)]'
              ]"></div>
       </div>
     </div>
@@ -68,6 +76,7 @@ watch(currentMode, (newMode) => {
     <JoinModeConfig v-if="currentMode === 'join'" />
     <ChatListModeConfig v-if="currentMode === 'list'" />
     <MomentsModeConfig v-if="currentMode === 'moments'" />
+    <XhsModeConfig v-if="currentMode === 'xhs'" />
 
     <!-- 2. 外观设置模块 -->
     <BasicConfig />
