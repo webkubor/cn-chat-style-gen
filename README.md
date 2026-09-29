@@ -1,5 +1,8 @@
 # WeChat Chat Gen
 
+> [English](README.en.md) | 中文
+
+
 一个用于生成高质感微信 + 小红书种草氛围图的前端应用，支持对话、拉人、列表、朋友圈、小红书五种模式，支持语料库管理与批量导出截图。
 
 **在线体验 → [wechat.webkubor.online](https://wechat.webkubor.online)**（无需注册，打开即用）
