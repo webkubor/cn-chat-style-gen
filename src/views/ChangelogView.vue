@@ -11,6 +11,7 @@ interface LogItem {
 
 interface VersionData {
   version?: string
+  current?: string
   changelog: LogItem[]
 }
 
@@ -40,10 +41,13 @@ const getFeatureIcon = (type: FeatureType) => {
 
 onMounted(async () => {
   try {
-    const res = await fetch('/version.json')
+    // changelog 数组来自 /changelog.json（构建期由 vite.config 里的 changelogJson 插件从
+    // public/version.json 抽出）。/version.json 已被 vite-plugin-refresh-guard 覆盖成构建清单
+    // （version/buildId/commit/time），不含 changelog —— 读它会让本页拿到空数组。
+    const res = await fetch(`/changelog.json?t=${Date.now()}`)
     const data: VersionData = await res.json()
-    logs.value = data.changelog
-    currentVersion.value = data?.changelog?.[0]?.version ?? data?.version ?? ''
+    logs.value = Array.isArray(data.changelog) ? data.changelog : []
+    currentVersion.value = data?.current ?? data?.changelog?.[0]?.version ?? data?.version ?? ''
   } catch (e) {
     console.error('Failed to load changelog', e)
   }
