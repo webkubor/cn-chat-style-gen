@@ -7,7 +7,7 @@
 export type DeviceType = 'ios' | 'android'
 export type StatusBarTheme = 'light' | 'dark'
 export type PreviewTheme = 'light' | 'dark'
-export type ExportRatio = 'full' | '3:4'
+export type ExportRatio = 'full' | '3:4' | '1:3'
 
 // --- 语料库实体 ---
 export interface CorpusItem {
@@ -123,6 +123,51 @@ export interface MomentsSession {
   updated_at: Date | any
 }
 
+// --- 小红书评论 ---
+export interface XhsComment {
+  id: string
+  userName: string
+  content: string
+}
+
+// --- 小红书笔记 ---
+export interface XhsPost {
+  id: string
+  title: string                  // 笔记标题（封面叠加）
+  cover: string                  // 封面图（CSS 渐变 token 或上传 URL）
+  content: string                // 正文（含 #话题词）
+  hashtags: string[]             // 顶部/底部标签
+  authorName: string
+  authorAvatar: string
+  redNoteId: string              // 小红书号
+  images: string[]               // 正文多图宫格（1/3/6/9）
+  time: string                   // 发布时间描述
+  likes: number
+  collects: number
+  comments: XhsComment[]
+}
+
+// --- 小红书配置 ---
+export interface XhsConfig {
+  authorName: string
+  authorAvatar: string
+  redNoteId: string
+  noteCount: number              // 生成几条笔记
+  titles: string[]               // 标题词
+  hashtags: string[]             // #标签池
+  likeRange: [number, number]    // 点赞区间
+  collectRange: [number, number] // 收藏区间
+  commentRange: [number, number] // 评论数区间
+}
+
+// --- 小红书会话 ---
+export interface XhsSession {
+  key: 'current'
+  config: XhsConfig
+  posts: XhsPost[]
+  updated_at: Date | any
+}
+
 // --- 集合与表名常量 ---
 export const DB_STORES = {
   CORPUS: 'corpus',
@@ -131,5 +176,6 @@ export const DB_STORES = {
   PREVIEW_QUEUE: 'preview_queue',
   AVATARS: 'avatars',
   CHAT_LIST: 'chat_list',
-  MOMENTS: 'moments_feed'
+  MOMENTS: 'moments_feed',
+  XHS: 'xhs_feed'
 } as const

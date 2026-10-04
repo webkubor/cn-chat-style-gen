@@ -14,7 +14,8 @@ const previewUrl = ref<string | null>(null)
 
 const exportRatioOptions = [
   { label: '完整截图', value: 'full' },
-  { label: '3:4 高度截图', value: '3:4' }
+  { label: '3:4 单卡（小红书）', value: '3:4' },
+  { label: '1:3 长图文', value: '1:3' }
 ]
 
 const openPreview = (url: string) => {
@@ -79,7 +80,7 @@ defineEmits<{
           <div v-if="queue.length" class="grid grid-cols-4 gap-2">
             <div v-for="item in queue" :key="item.id" class="relative rounded-md overflow-hidden border border-white/10 bg-white/5">
               <button type="button" class="w-full text-left cursor-zoom-in" @click="openPreview(item.url)">
-                <div class="w-full" :class="chatStore.exportRatio === '3:4' ? 'aspect-[3/4]' : 'aspect-[9/16]'">
+                <div class="w-full" :class="chatStore.exportRatio === '3:4' ? 'aspect-[3/4]' : chatStore.exportRatio === '1:3' ? 'aspect-[1/3]' : 'aspect-[9/16]'">
                   <img :src="item.url" class="w-full h-full object-cover" />
                 </div>
               </button>
