@@ -70,10 +70,15 @@ export function useExport() {
       const cropTop = chatStore.keepStatusBar ? 0 : (header ? Math.max(0, header.offsetTop + 6) : 0)
       const fullHeight = element.offsetHeight
       const availableHeight = Math.max(0, fullHeight - cropTop)
-      const targetHeight = Math.round(cropWidth * 4 / 3)
-      const exportHeight = chatStore.exportRatio === '3:4'
-        ? Math.min(targetHeight, availableHeight)
-        : availableHeight
+      const exportRatio = chatStore.exportRatio
+      const targetHeight = exportRatio === '3:4'
+        ? Math.round(cropWidth * 4 / 3)
+        : exportRatio === '1:3'
+          ? Math.round(cropWidth * 3)
+          : availableHeight
+      const exportHeight = exportRatio === 'full'
+        ? availableHeight
+        : Math.min(targetHeight, availableHeight)
 
       const cropCanvas = document.createElement('canvas')
       cropCanvas.width = Math.round(cropWidth * scale)
